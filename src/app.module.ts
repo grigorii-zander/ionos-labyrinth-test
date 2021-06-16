@@ -19,6 +19,9 @@ import { LabyrinthModule } from 'labyrinth/labyrinth.module'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
+        if (!config.getValue('mongo:uri')) {
+          throw new Error('Mongo URL not specified. Check API_MONGO__URI environment variable.')
+        }
         return {
           connectionFactory: connection => {
             connection.plugin(schema => {
