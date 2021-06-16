@@ -125,7 +125,14 @@ curl -X PUT --location "http://localhost:4000/labyrinth/60ca6042bb8b97006de2ad73
     --basic --user user1:password1
 ```
 
-You will notice, that maze already filled with empty cells:
+You will notice, that maze already filled with empty cells.
+
+Cell codes in matrix:
+- 0 empty cell
+- 1 wall
+- 2 start point
+- 3 end point
+
 
 ```json
 {
@@ -169,7 +176,7 @@ curl -X GET --location "http://localhost:4000/labyrinth/60ca6042bb8b97006de2ad73
     -H "Content-Type: application/json" \
     --basic --user user1:password1
 ```
-
+It will return path from start to end and the matrix:
 
 ```json
 {
@@ -216,3 +223,6 @@ It looks like this
 
 ![example1](docs/example1.png)
 
+More complex maze:
+
+![example2](docs/example2.png)
