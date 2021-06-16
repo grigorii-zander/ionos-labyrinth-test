@@ -9,6 +9,7 @@ import {
   Body,
   NotFoundException,
   BadRequestException,
+  HttpCode,
 } from '@nestjs/common'
 import { BasicAuthGuard } from 'guards/basic.guard'
 import { LabyrinthTileUpdateDto } from 'labyrinth/dto/labyrinth-tile-update.dto'
@@ -19,19 +20,32 @@ import { LabyrinthFindOneParamsDto } from 'labyrinth/dto/labyrinth-find-one-para
 import { LabyrinthCreateDto } from 'labyrinth/dto/labyrinth-create.dto'
 import { LabyrinthService } from 'labyrinth/labyrinth.service'
 import { aStar, Point as AStarPoint } from 'labyrinth/a-star'
+import { ApiResponse, ApiBasicAuth, ApiOperation } from '@nestjs/swagger'
+import { ApiPaginatedResponse } from 'decorators/apiPaginatedResponse.decorator'
+import { LabyrinthDto } from 'labyrinth/dto/labyrinth.dto'
+import { LabyrinthSolutionDto } from 'labyrinth/dto/labyrinth-solution.dto'
 
+@ApiBasicAuth()
+@UseGuards(BasicAuthGuard)
 @Controller('labyrinth')
 export class LabyrinthController {
   constructor(private labyrinthService: LabyrinthService) {}
 
   @Get('/')
-  @UseGuards(BasicAuthGuard)
+  @ApiOperation({ summary: 'Fetch current user maze list.' })
+  @ApiPaginatedResponse(LabyrinthDto)
   async getList(@Req() req) {
     return await this.labyrinthService.list(req.user.id, 20, 0)
   }
 
   @Get('/:id')
   @UseGuards(BasicAuthGuard)
+  @ApiOperation({ summary: 'Fetch Labyrinth by id for given user.' })
+  @ApiResponse({
+    type: LabyrinthDto,
+    status: 200,
+    description: 'Returns Labyrinth object by given ID',
+  })
   async getItem(@Req() req, @Param() params: LabyrinthFindOneParamsDto) {
     const item = await this.labyrinthService.getById(req.user.id, params.id)
     if (!item) {
@@ -42,12 +56,23 @@ export class LabyrinthController {
 
   @Post('/')
   @UseGuards(BasicAuthGuard)
+  @HttpCode(201)
+  @ApiOperation({ summary: 'Create new Labyrinth' })
+  @ApiResponse({
+    type: LabyrinthDto,
+    status: 201,
+    description: 'Returns created Labyrinth.',
+  })
   async create(@Body() body: LabyrinthCreateDto, @Req() req) {
     return this.labyrinthService.create(req.user.id, body)
   }
 
   @Put('/:id/playfield/:x/:y/:type')
   @UseGuards(BasicAuthGuard)
+  @ApiOperation({
+    summary: 'Set cell type',
+    description: 'Set cell type by given coordinates. Accepted types: "filled" and "empty"',
+  })
   async setCell(@Req() req, @Param() params: LabyrinthTileUpdateDto) {
     const updatedLabyrinth = await this.labyrinthService.setTile(req.user.id, params.id, params)
     if (!updatedLabyrinth) {
@@ -58,6 +83,11 @@ export class LabyrinthController {
 
   @Put('/:id/start/:x/:y')
   @UseGuards(BasicAuthGuard)
+  @ApiOperation({
+    summary: 'Set starting point of Labyrinth',
+    description:
+      'Set cell type to type "start" by given coordinates. If start point already existed it will be removed before inserting new one',
+  })
   async setStartPoint(@Req() req, @Param() params: LabyrinthSetStartPointDto) {
     const updatedLabyrinth = await this.labyrinthService.setStartPoint(req.user.id, params.id, params)
     if (!updatedLabyrinth) {
@@ -68,6 +98,11 @@ export class LabyrinthController {
 
   @Put(`/:id/end/:x/:y`)
   @UseGuards(BasicAuthGuard)
+  @ApiOperation({
+    summary: 'Set ending point of Labyrinth',
+    description:
+      'Set cell type to type "end" by given coordinates. If start point already existed it will be removed before inserting new one',
+  })
   async setEndPoint(@Req() req, @Param() params: LabyrinthSetEndPointDto) {
     const updatedLabyrinth = await this.labyrinthService.setEndPoint(req.user.id, params.id, params)
     if (!updatedLabyrinth) {
@@ -78,6 +113,14 @@ export class LabyrinthController {
 
   @Get('/:id/solution')
   @UseGuards(BasicAuthGuard)
+  @ApiOperation({
+    summary: 'try to solve the Labyrinth',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Solves the Labyrinth',
+    type: LabyrinthSolutionDto,
+  })
   async getSolution(@Req() req, @Param() params: LabyrinthSolutionParamsDto) {
     const labyrinth = await this.labyrinthService.getById(req.user.id, params.id)
     if (!labyrinth) {
@@ -136,10 +179,20 @@ export class LabyrinthController {
       return null
     }
 
-    // path.forEach(point => {
-    //   matrix[point.i][point.j] = 9
-    // })
+    const mapDirection = {
+      down: '⬇️',
+      up: '⬆️',
+      left: '⬅️',
+      right: '➡️',
+    }
 
-    return path
+    path.forEach(entry => {
+      matrix[entry.point.i][entry.point.j] = mapDirection[entry.direction]
+    })
+
+    return {
+      path: path.map(entry => entry.direction),
+      matrix,
+    }
   }
 }

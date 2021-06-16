@@ -32,10 +32,10 @@ export class LabyrinthTileUpdateDto {
 
   @ApiProperty({
     type: String,
-    enum: tileTypesEnum,
+    enum: ['filled', 'empty'],
     title: 'Y coordinate',
     required: true,
   })
-  @IsEnum(tileTypesEnum)
+  @IsEnum(['filled', 'empty'])
   type: TileType
 }

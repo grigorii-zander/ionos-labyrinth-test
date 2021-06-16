@@ -127,18 +127,24 @@ export const aStar = (grid: Grid, startPoint: Point, endPoint: Point) => {
   }
 
   if (haveSolution) {
-    const path: string[] = []
+    const path: { point: Point; direction: string }[] = []
     let temp = endPoint
     while (temp.prev) {
+      let direction
       if (temp.i < temp.prev.i && temp.j === temp.prev.j) {
-        path.push('up')
+        direction = 'up'
       } else if (temp.i === temp.prev.i && temp.j < temp.prev.j) {
-        path.push('left')
+        direction = 'left'
       } else if (temp.i === temp.prev.i && temp.j > temp.prev.j) {
-        path.push('right')
+        direction = 'right'
       } else if (temp.i > temp.prev.i && temp.j === temp.prev.j) {
-        path.push('down')
+        direction = 'down'
       }
+      path.push({
+        point: temp.prev,
+        direction,
+      })
+
       temp = temp.prev
     }
     return path.reverse()
