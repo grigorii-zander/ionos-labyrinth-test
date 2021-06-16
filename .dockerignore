@@ -1,0 +1,9 @@
+node_modules
+build
+.dockerignore
+README.md
+.vscode
+.idea
+jsconfig.json
+coverage
+./dev
