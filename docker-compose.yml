@@ -1,15 +1,25 @@
-version: '3.2'
+version: '3.8'
 services:
   mongo:
     image: mongo:4.4.1-bionic
+    ports:
+      - 27017:27017
+    logging:
+      driver: none
   api:
     ports:
       - "4000:4000"
     build:
       context: .
-      dockerfile: ./Dockerfile
     depends_on:
       - mongo
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: yarn start:dev
     environment:
       - API_MONGO__URI="mongodb://mongo/labyrinth"
+      - API_APP__PORT=4000
+      - API_BCRYPT__SALT=10
+      - NODE_ENV=development
 

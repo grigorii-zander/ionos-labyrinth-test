@@ -1,11 +1,5 @@
-FROM izonder/anny:14
+FROM node:14-alpine
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --production --frozen-lockfile && yarn cache clean
-COPY . ./
-
-RUN yarn build
-
+RUN yarn
 EXPOSE 4000
-
-CMD ["node", "dist/src/main.js"]
