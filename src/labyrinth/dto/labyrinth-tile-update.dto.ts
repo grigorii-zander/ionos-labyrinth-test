@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsEnum } from 'class-validator'
+import { IsInt, IsEnum, IsMongoId } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { TileType, tileTypesEnum } from 'labyrinth/interfaces/tile'
 import { Transform } from 'class-transformer'
@@ -9,7 +9,7 @@ export class LabyrinthTileUpdateDto {
     title: 'Labyrinth id',
     required: true,
   })
-  @IsString()
+  @IsMongoId()
   id: string
 
   @ApiProperty({

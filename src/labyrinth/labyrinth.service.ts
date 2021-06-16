@@ -1,25 +1,29 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { LabyrinthSchema, LabyrinthModel, LabyrinthDocument } from './schemas/labyrinth.schema'
+import { Labyrinth, LabyrinthDocument } from './schemas/labyrinth.schema'
 import { Model } from 'mongoose'
 import { LabyrinthCreateDto } from 'labyrinth/dto/labyrinth-create.dto'
-import { LabyrinthTileUpdateDto } from 'labyrinth/dto/labyrinth-tile-update.dto'
 import { TileType } from 'labyrinth/interfaces/tile'
 import { PaginatedResponseDto } from 'dto/paginatedResponse.dto'
-import { TileDocument, TileModel } from 'labyrinth/schemas/tile.schema'
-import { UserModel } from 'users/user.schema'
 
 @Injectable()
 export class LabyrinthService {
-  constructor(
-    @InjectModel(LabyrinthModel.name) private labyrinthModel: Model<LabyrinthDocument>,
-    @InjectModel(TileModel.name) private tileModel: Model<TileDocument>
-  ) {}
+  constructor(@InjectModel(Labyrinth.name) private labyrinthModel: Model<LabyrinthDocument>, private logger: Logger) {}
 
-  async list(userId: string, limit = 20, offset = 0): Promise<PaginatedResponseDto<LabyrinthModel>> {
+  private insertOrUpdateTile(labyrinthDoc: LabyrinthDocument, definition: { x: number; y: number; type: TileType }) {
+    const existed = labyrinthDoc.tiles.find(tile => tile.y === definition.y && tile.x === definition.x)
+    if (existed) {
+      existed.type = definition.type
+    } else {
+      labyrinthDoc.tiles.push(definition)
+    }
+    return labyrinthDoc
+  }
+
+  async list(userId: string, limit = 20, offset = 0): Promise<PaginatedResponseDto<Labyrinth>> {
     const [total, results] = await Promise.all([
       this.labyrinthModel.countDocuments().exec(),
-      this.labyrinthModel.find().limit(limit).skip(offset).populate(['tiles', 'user']).exec(),
+      this.labyrinthModel.find({ user: userId }).limit(limit).skip(offset).exec(),
     ])
 
     return {
@@ -31,34 +35,83 @@ export class LabyrinthService {
   }
 
   async create(userId: string, definition: LabyrinthCreateDto) {
-    const { tiles, title } = definition
-
-    const model = await this.labyrinthModel.create({
-      title,
+    const doc = await this.labyrinthModel.create({
+      ...definition,
       user: userId,
     })
-
-    if (tiles) {
-      const newTiles = await this.tileModel.insertMany(tiles)
-      model.tiles = newTiles.map(tile => tile._id)
-    }
-
-    await model.save()
-
-    return model.toObject()
+    return doc.toObject()
   }
 
-  async setTile(userId, labyrinthId: string, definition: { x: number; y: number; type: TileType }) {
-    const model = await this.labyrinthModel.findOne({ _id: labyrinthId })
-    if (!model) {
+  async getById(userId: string, labyrinthId: string) {
+    try {
+      const doc = await this.labyrinthModel.findOne({ user: userId, _id: labyrinthId }).exec()
+      if (doc) {
+        return doc.toObject()
+      }
+    } catch (err) {
+      this.logger.error(err)
       return null
     }
+    return null
+  }
 
-    const newTile = await this.tileModel.create(definition)
-    await newTile.save()
-    model.tiles.push(newTile)
-    await model.save()
+  async setTile(userId: string, labyrinthId: string, definition: { x: number; y: number; type: TileType }) {
+    try {
+      const labyrinthDoc = await this.labyrinthModel.findOne({ _id: labyrinthId, user: userId })
+      if (!labyrinthDoc) {
+        return null
+      }
+      this.insertOrUpdateTile(labyrinthDoc, definition)
+      await labyrinthDoc.save()
+      return labyrinthDoc.toObject()
+    } catch (err) {
+      this.logger.error(err)
+    }
+    return null
+  }
 
-    return model.toObject()
+  async setStartPoint(userId: string, labyrinthId: string, definition: { x: number; y: number }) {
+    try {
+      const labyrinthDoc = await this.labyrinthModel.findOne({ user: userId, _id: labyrinthId }).exec()
+      if (!labyrinthDoc) {
+        return null
+      }
+      // ensure no more start points
+      labyrinthDoc.tiles.forEach(t => {
+        if (t.type === 'start') {
+          t.remove()
+        }
+      })
+      this.insertOrUpdateTile(labyrinthDoc, { ...definition, type: 'start' })
+
+      await labyrinthDoc.save()
+      return labyrinthDoc.toObject()
+    } catch (err) {
+      this.logger.error(err)
+    }
+    return null
+  }
+
+  async setEndPoint(userId: string, labyrinthId: string, definition: { x: number; y: number }) {
+    try {
+      const labyrinthDoc = await this.labyrinthModel.findOne({ user: userId, _id: labyrinthId })
+      if (!labyrinthDoc) {
+        return null
+      }
+
+      // ensure no more end points
+      labyrinthDoc.tiles.forEach(t => {
+        if (t.type === 'end') {
+          t.remove()
+        }
+      })
+      this.insertOrUpdateTile(labyrinthDoc, { ...definition, type: 'end' })
+
+      await labyrinthDoc.save()
+      return labyrinthDoc.toObject()
+    } catch (err) {
+      this.logger.error(err)
+    }
+    return null
   }
 }

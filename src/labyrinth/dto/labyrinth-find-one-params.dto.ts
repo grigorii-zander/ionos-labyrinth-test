@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator'
+import { IsMongoId } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class LabyrinthFindOneParamsDto {
@@ -7,6 +7,6 @@ export class LabyrinthFindOneParamsDto {
     title: 'Labyrinth id',
     required: true,
   })
-  @IsString()
+  @IsMongoId()
   id: string
 }

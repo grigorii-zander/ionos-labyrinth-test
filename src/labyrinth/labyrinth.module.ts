@@ -3,13 +3,9 @@ import { LabyrinthController } from './labyrinth.controller'
 import { LabyrinthService } from './labyrinth.service'
 import { MongooseModule } from '@nestjs/mongoose'
 import { LabyrinthSchema } from 'labyrinth/schemas/labyrinth.schema'
-import { TileSchema } from 'labyrinth/schemas/tile.schema'
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: 'LabyrinthModel', schema: LabyrinthSchema }]),
-    MongooseModule.forFeature([{ name: 'TileModel', schema: TileSchema }]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'Labyrinth', schema: LabyrinthSchema }])],
   controllers: [LabyrinthController],
   providers: [LabyrinthService],
 })

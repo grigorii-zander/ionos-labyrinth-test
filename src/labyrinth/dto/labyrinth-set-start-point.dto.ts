@@ -1,4 +1,4 @@
-import { IsInt, IsString } from 'class-validator'
+import { IsInt, IsMongoId } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
 
@@ -8,7 +8,7 @@ export class LabyrinthSetStartPointDto {
     title: 'Labyrinth id',
     required: true,
   })
-  @IsString()
+  @IsMongoId()
   id: string
 
   @ApiProperty({

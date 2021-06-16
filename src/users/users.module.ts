@@ -6,7 +6,7 @@ import { UsersController } from './users.controller'
 import { HashModule } from 'hash/hash.module'
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'UserModel', schema: UserSchema }]), HashModule],
+  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]), HashModule],
   providers: [UsersService],
   exports: [UsersService],
   controllers: [UsersController],

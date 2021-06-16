@@ -1,26 +1,67 @@
-import { Prop, Schema, SchemaFactory  } from '@nestjs/mongoose'
-import { Document, Schema as MongooseSchema } from 'mongoose'
-import { TileModel, TileSchema } from './tile.schema'
-import { UserModel } from 'users/user.schema'
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
+import { Document, Types } from 'mongoose'
+import { Tile, TileSchema } from './tile.schema'
+import { User } from 'users/user.schema'
+import { rethrow } from '@nestjs/core/helpers/rethrow'
+import { TileType } from 'labyrinth/interfaces/tile'
 
-export type LabyrinthDocument = Document & LabyrinthModel
+export type LabyrinthDocument = Labyrinth
 
-@Schema({ minimize: true })
-export class LabyrinthModel {
+@Schema()
+export class Labyrinth {
   @Prop({ type: String })
   title?: string
 
   @Prop({
-    type: [{ type: MongooseSchema.Types.ObjectId, ref: 'TileModel' }],
+    type: [TileSchema],
+    required: true,
     default: [],
   })
-  tiles: TileModel[]
+  tiles: Types.DocumentArray<Tile>
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'UserModel', required: true, index: true })
-  user: UserModel
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  user: string
 
   @Prop({ type: Number, select: false })
   __v?: number
+
+  get matrix() {
+    return this.getMatrix2d()
+  }
+
+  getMatrix2d() {
+    const dimension: [number, number] = [0, 0]
+    this.tiles.forEach(tile => {
+      dimension[0] = Math.max(tile.x, dimension[0])
+      dimension[1] = Math.max(tile.y, dimension[1])
+    })
+
+    const matrix: number[][] = []
+
+    const [x, y] = dimension
+    for (let i = 0; i <= y; i++) {
+      const row: number[] = []
+      for (let j = 0; j <= x; j++) {
+        row.push(0)
+      }
+      matrix.push(row)
+    }
+
+    const mapType: Record<TileType, number> = {
+      empty: 0,
+      filled: 1,
+      start: 2,
+      end: 3,
+    }
+    this.tiles.forEach(tile => {
+      matrix[tile.y][tile.x] = mapType[tile.type] || 0
+    })
+
+    return matrix
+  }
 }
 
-export const LabyrinthSchema = SchemaFactory.createForClass(LabyrinthModel)
+export const LabyrinthSchema = SchemaFactory.createForClass(Labyrinth)
+
+LabyrinthSchema.index({ 'tiles._id': 1 })
+LabyrinthSchema.loadClass(Labyrinth)

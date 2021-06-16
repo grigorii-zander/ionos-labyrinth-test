@@ -20,6 +20,27 @@ import { LabyrinthModule } from 'labyrinth/labyrinth.module'
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         return {
+          connectionFactory: connection => {
+            connection.plugin(schema => {
+              schema.options.toObject = {
+                virtuals: true,
+                versionKey: false,
+                transform(doc, ret) {
+                  ret.id = ret._id
+                  delete ret._id
+                },
+              }
+              schema.options.toJSON = {
+                virtuals: true,
+                versionKey: false,
+                transform(doc, ret) {
+                  ret.id = ret._id
+                  delete ret._id
+                },
+              }
+            })
+            return connection
+          },
           uri: config.getValue('mongo:uri'),
           autoIndex: true,
           useCreateIndex: true,

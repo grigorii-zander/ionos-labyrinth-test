@@ -13,14 +13,4 @@ export class LabyrinthCreateDto {
   @IsString()
   title?: string
 
-  @ApiProperty({
-    type: TileDto,
-    title: 'Initial tile list (optional)',
-    required: false,
-  })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TileDto)
-  @IsOptional()
-  tiles?: TileDto[] = []
 }
