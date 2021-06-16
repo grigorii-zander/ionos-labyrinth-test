@@ -3,8 +3,6 @@ import { InjectModel } from '@nestjs/mongoose'
 import { User, UserDocument } from './user.schema'
 import { Model } from 'mongoose'
 import { CreateUserDto } from './dto/create-user.dto'
-import { PaginatedResponseDto } from 'dto/paginatedResponse.dto'
-import { UserDto } from './dto/user.dto'
 import { HashService } from 'hash/hash.service'
 
 @Injectable()
@@ -25,19 +23,5 @@ export class UsersService {
     })
     await newUser.save()
     return newUser.toObject()
-  }
-
-  async list(limit = 20, offset = 0): Promise<PaginatedResponseDto<User>> {
-    const [total, results] = await Promise.all([
-      this.userModel.countDocuments().exec(),
-      this.userModel.find().limit(limit).skip(offset).exec(),
-    ])
-
-    return {
-      limit,
-      offset,
-      total,
-      results,
-    }
   }
 }
