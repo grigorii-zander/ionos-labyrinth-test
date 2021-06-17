@@ -227,5 +227,6 @@ You can also run the `probe` script, that creates/fills/checks a few kinds of ma
 
 ```bash
 # make sure app is available at localhost:4000
+# and install modules locally
 $ yarn probe
 ```
