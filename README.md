@@ -1,6 +1,7 @@
 ## Description
 This app provides a couple of endpoints to create and solve mazes.
 For path finding I picked the [A* algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
+You can find the implementation here [`./src/labyrinth/a-star.ts`](./src/labyrinth/a-star.ts).
 
 I met all the restrictions from the assignment:
 - [x] use the frameworks of your choice — NestJS
@@ -230,3 +231,7 @@ You can also run the `probe` script, that creates/fills/checks a few kinds of ma
 # and install modules locally
 $ yarn probe
 ```
+
+## Possible improvements
+- [ ] cache the solution instead of calculating it every `/labyrinth/:id/solution` call.
+- [ ] cache the labyrinth matrix. So far, it renders by the virtual field of mongoose model every query.
