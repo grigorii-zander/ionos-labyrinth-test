@@ -1,6 +1,6 @@
 import { IsInt, IsEnum, IsMongoId } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { TileType, tileTypesEnum } from 'labyrinth/interfaces/tile'
+import { TileType } from 'labyrinth/interfaces/tile'
 import { Transform } from 'class-transformer'
 
 export class LabyrinthTileUpdateDto {

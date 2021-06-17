@@ -2,15 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { User } from 'users/interfaces/user'
 import { UsersService } from 'users/users.service'
 import { HashService } from 'hash/hash.service'
-import { ConfigService } from 'config/config.service'
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private usersService: UsersService,
-    private hashService: HashService,
-    private configService: ConfigService
-  ) {}
+  constructor(private usersService: UsersService, private hashService: HashService) {}
 
   async validateUser(login: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByLoginWithPassword(login)

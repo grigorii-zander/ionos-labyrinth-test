@@ -1,19 +1,14 @@
 ## Description
 This app provides a couple of endpoints to create and solve mazes.
-For path finding I picked the A* algorithm.
+For path finding I picked the [A* algorithm](https://en.wikipedia.org/wiki/A*_search_algorithm).
 
 I met all the restrictions from the assignment:
-> use the frameworks of your choice
-- NextJS
-> persisting two data collections or tables (users, labyrinths)
-- check, just two collections
-> REST API should use BasicAuth
-- also check 
-> user creation must work 'on-the-fly', no user deletion needed
-- check
-> please provide a brief documentation with steps for setting up and
+- [x] use the frameworks of your choice — NestJS
+- [x] persisting two data collections or tables (users, labyrinths)
+- [x] REST API should use BasicAuth
+- [x] user creation must work 'on-the-fly', no user deletion needed
+- [x] please provide a brief documentation with steps for setting up and
 describing the choice of technologies (e.g. DB or framework)
-- here it is
 
 ## Technologies used
 
@@ -58,7 +53,7 @@ $ yarn start:dev
 ## How to use
 
 After the successful launch the app will listen for requests at `4000` port.
-Also `Swagger` available at http://localhost:4000/api, the list of endpoints you can find there.
+Also `Swagger` available at [http://localhost:4000/api](http://localhost:4000/api), the list of endpoints you can find there.
 ![run log](docs/run-log.png)
 
 
@@ -226,3 +221,11 @@ It looks like this
 More complex maze:
 
 ![example2](docs/example2.png)
+
+
+You can also run the `probe` script, that creates/fills/checks a few kinds of mazes.
+
+```bash
+# make sure app is available at localhost:4000
+$ yarn probe
+```

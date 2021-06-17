@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { Document, Types } from 'mongoose'
+import { Types } from 'mongoose'
 import { Tile, TileSchema } from './tile.schema'
 import { User } from 'users/user.schema'
-import { rethrow } from '@nestjs/core/helpers/rethrow'
 import { TileType } from 'labyrinth/interfaces/tile'
 
 export type LabyrinthDocument = Labyrinth
@@ -19,7 +18,7 @@ export class Labyrinth {
   })
   tiles: Types.DocumentArray<Tile>
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: 1 })
   user: string
 
   @Prop({ type: Number, select: false })
@@ -37,6 +36,10 @@ export class Labyrinth {
     })
 
     const matrix: number[][] = []
+
+    if (!this.tiles.length) {
+      return matrix
+    }
 
     const [x, y] = dimension
     for (let i = 0; i <= y; i++) {

@@ -3,7 +3,7 @@ services:
   mongo:
     image: mongo:4.4.1-bionic
     ports:
-      - 27017:27017
+      - "27017:27017"
     logging:
       driver: none
   api:

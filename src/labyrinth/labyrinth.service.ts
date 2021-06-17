@@ -57,7 +57,7 @@ export class LabyrinthService {
 
   async setTile(userId: string, labyrinthId: string, definition: { x: number; y: number; type: TileType }) {
     try {
-      const labyrinthDoc = await this.labyrinthModel.findOne({ _id: labyrinthId, user: userId })
+      const labyrinthDoc = await this.labyrinthModel.findOne({ _id: labyrinthId, user: userId }).exec()
       if (!labyrinthDoc) {
         return null
       }
@@ -94,7 +94,7 @@ export class LabyrinthService {
 
   async setEndPoint(userId: string, labyrinthId: string, definition: { x: number; y: number }) {
     try {
-      const labyrinthDoc = await this.labyrinthModel.findOne({ user: userId, _id: labyrinthId })
+      const labyrinthDoc = await this.labyrinthModel.findOne({ user: userId, _id: labyrinthId }).exec()
       if (!labyrinthDoc) {
         return null
       }
