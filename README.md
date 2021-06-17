@@ -12,7 +12,7 @@ describing the choice of technologies (e.g. DB or framework)
 
 ## Technologies used
 
-As a framework I picked NestJS, it provides everything you need: project structure, validation,
+As a framework I picked [NestJS](https://docs.nestjs.com/), it provides everything you need: project structure, validation,
 swagger annotations. I also like the system of guards/interceptors/validation pipelines.
 
 For persistent storage, I picked MongoDB, because it's easier to run. For this task
